@@ -1,6 +1,5 @@
 package three5
 
-import "fmt"
 import "github.com/futzu/gobit"
 
 // SpInfo is the splice info section of the SCTE 35 cue.
