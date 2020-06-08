@@ -30,7 +30,7 @@ func (spi *SpInfo) Decode(bitn gobit.Bitn) {
 	spi.ProtocolVersion = bitn.AsInt(8)
 	spi.EncryptedPacket = bitn.AsBool()
 	spi.EncryptionAlgorithm = bitn.AsInt(6)
-	spi.PtsAdjustment = bitn.AsFloat(33)
+	spi.PtsAdjustment = bitn.As90k(33)
 	spi.CwIndex = bitn.AsHex(8)
 	spi.Tier = bitn.AsHex(12)
 	spi.SpliceCommandLength = bitn.AsInt(12)
@@ -63,7 +63,9 @@ func (cmd *SpCmd) Decode(bitn gobit.Bitn, cmdtype uint64) {
 		cmd.SpliceNull()
 	}
 	//4: Splice_Schedule,
-	//5: Splice_Insert,
+	if cmdtype == 5{
+		cmd.Splice_Insert(bitn)
+	}
 	if cmdtype == 6 {
 		cmd.TimeSignal(bitn)
 	}
@@ -75,7 +77,7 @@ func (cmd *SpCmd) Decode(bitn gobit.Bitn, cmdtype uint64) {
 func (cmd *SpCmd) ParseBreak(bitn gobit.Bitn) {
 	cmd.BreakAutoReturn = bitn.AsBool()
 	bitn.Forward(6)
-	cmd.BreakDuration = bitn.AsFloat(33)
+	cmd.BreakDuration = bitn.As90k(33)
 }
 
 // SpliceTime parses out the PTS value as needed
@@ -83,7 +85,7 @@ func (cmd *SpCmd) SpliceTime(bitn gobit.Bitn) {
 	cmd.TimeSpecifiedFlag = bitn.AsBool()
 	if cmd.TimeSpecifiedFlag == true {
 		bitn.Forward(6)
-		cmd.PTS = bitn.AsFloat(33)
+		cmd.PTS = bitn.As90k(33)
 	} else {
 		bitn.Forward(7)
 	}
