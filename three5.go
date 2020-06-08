@@ -1,6 +1,17 @@
 package three5
 
+import "encoding/base64"
 import "github.com/futzu/gobit"
+import "log"
+
+// DeB64 decodes base64 strings
+func DeB64(b64 string) []byte {
+	deb64, err := base64.StdEncoding.DecodeString(b64)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return deb64
+}
 
 // SpInfo is the splice info section of the SCTE 35 cue.
 type SpInfo struct {
@@ -88,8 +99,9 @@ func (cmd *SpCmd) SpliceTime(bitn *gobit.Bitn) {
 		bitn.Forward(7)
 	}
 }
-func (cmd *SpCmd) SpliceInsert(bitn *gobit.Bitn) {
 
+// SpliceInsert handles SCTE 35 splice insert commands
+func (cmd *SpCmd) SpliceInsert(bitn *gobit.Bitn) {
 	cmd.Name = "Splice Insert"
 	cmd.SpliceEventId = bitn.AsInt(32)
 	cmd.SpliceEventCancelIndicator = bitn.AsBool()
@@ -110,10 +122,10 @@ func (cmd *SpCmd) SpliceInsert(bitn *gobit.Bitn) {
 	if cmd.ProgramSpliceFlag == false {
 		cmd.ComponentCount = bitn.AsInt(8)
 		/**
-		                cmd.Components = []
-		                for i in range(0, cmd.ComponentCount):
-		                    cmd.Components[i] = bitbin.AsInt(8)
-			**/
+		  cmd.Components = []
+		  for i in range(0, cmd.ComponentCount):
+		  cmd.Components[i] = bitbin.AsInt(8)
+		**/
 		if cmd.SpliceImmediateFlag == false {
 			cmd.SpliceTime(bitn)
 		}
@@ -131,7 +143,7 @@ func (cmd *SpCmd) SpliceNull() {
 	cmd.Name = "Splice Null"
 }
 
-// TimeSignal is a wrapper for Splicetime
+// TimeSignal splice command is a wrapper for SpliceTime
 func (cmd *SpCmd) TimeSignal(bitn *gobit.Bitn) {
 	cmd.Name = "Time Signal"
 	cmd.SpliceTime(bitn)
