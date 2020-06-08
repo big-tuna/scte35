@@ -1,6 +1,5 @@
 package three5
 
-
 import "github.com/futzu/gobit"
 
 // SpInfo is the splice info section of the SCTE 35 cue.
@@ -21,7 +20,7 @@ type SpInfo struct {
 }
 
 // Decode extracts bits for the splice info section values
-func (spi *SpInfo) Decode(bitn gobit.Bitn) {
+func (spi *SpInfo) Decode(bitn *gobit.Bitn) {
 	spi.TableId = bitn.AsHex(8)
 	spi.SectionSyntaxIndicator = bitn.AsBool()
 	spi.Private = bitn.AsBool()
@@ -57,12 +56,12 @@ type SpCmd struct {
 }
 
 // Decode the splice command values
-func (cmd *SpCmd) Decode(bitn gobit.Bitn, cmdtype uint64) {
+func (cmd *SpCmd) Decode(bitn *gobit.Bitn, cmdtype uint64) {
 	if cmdtype == 0 {
 		cmd.SpliceNull()
 	}
 	//4: Splice_Schedule,
-	if cmdtype == 5{
+	if cmdtype == 5 {
 		cmd.SpliceInsert(bitn)
 	}
 	if cmdtype == 6 {
@@ -73,14 +72,14 @@ func (cmd *SpCmd) Decode(bitn gobit.Bitn, cmdtype uint64) {
 }
 
 // ParseBreak parses out the ad break duration values
-func (cmd *SpCmd) ParseBreak(bitn gobit.Bitn) {
+func (cmd *SpCmd) ParseBreak(bitn *gobit.Bitn) {
 	cmd.BreakAutoReturn = bitn.AsBool()
 	bitn.Forward(6)
 	cmd.BreakDuration = bitn.As90k(33)
 }
 
 // SpliceTime parses out the PTS value as needed
-func (cmd *SpCmd) SpliceTime(bitn gobit.Bitn) {
+func (cmd *SpCmd) SpliceTime(bitn *gobit.Bitn) {
 	cmd.TimeSpecifiedFlag = bitn.AsBool()
 	if cmd.TimeSpecifiedFlag == true {
 		bitn.Forward(6)
@@ -89,40 +88,42 @@ func (cmd *SpCmd) SpliceTime(bitn gobit.Bitn) {
 		bitn.Forward(7)
 	}
 }
-func (cmd *SpCmd) SpliceInsert(bitn gobit.Bitn) {
+func (cmd *SpCmd) SpliceInsert(bitn *gobit.Bitn) {
+
 	cmd.Name = "Splice Insert"
 	cmd.SpliceEventId = bitn.AsInt(32)
 	cmd.SpliceEventCancelIndicator = bitn.AsBool()
 	bitn.Forward(7)
-	if cmd.SpliceEventCancelIndicator == false {
+	if !(cmd.SpliceEventCancelIndicator) {
 		cmd.OutOfNetworkIndicator = bitn.AsBool()
 		cmd.ProgramSpliceFlag = bitn.AsBool()
 		cmd.DurationFlag = bitn.AsBool()
 		cmd.SpliceImmediateFlag = bitn.AsBool()
 		bitn.Forward(4)
-		if cmd.ProgramSpliceFlag == true {
-			if cmd.SpliceImmediateFlag == false {
-				cmd.SpliceTime(bitn)
-			}
-		}
-		if cmd.ProgramSpliceFlag == false {
-			cmd.ComponentCount = bitn.AsInt(8)
-			/**
-			                cmd.Components = []
-			                for i in range(0, cmd.ComponentCount):
-			                    cmd.Components[i] = bitbin.AsInt(8)
-						**/
-			if cmd.SpliceImmediateFlag == false {
-				cmd.SpliceTime(bitn)
-			}
-		}
-		if cmd.DurationFlag == true {
-			cmd.ParseBreak(bitn)
-		}
-		cmd.UniqueProgramId = bitn.AsInt(16)
-		cmd.AvailNum = bitn.AsInt(8)
-		cmd.AvailExpected = bitn.AsInt(8)
 	}
+
+	if cmd.ProgramSpliceFlag == true {
+		if cmd.SpliceImmediateFlag == false {
+			cmd.SpliceTime(bitn)
+		}
+	}
+	if cmd.ProgramSpliceFlag == false {
+		cmd.ComponentCount = bitn.AsInt(8)
+		/**
+		                cmd.Components = []
+		                for i in range(0, cmd.ComponentCount):
+		                    cmd.Components[i] = bitbin.AsInt(8)
+			**/
+		if cmd.SpliceImmediateFlag == false {
+			cmd.SpliceTime(bitn)
+		}
+	}
+	if cmd.DurationFlag == true {
+		cmd.ParseBreak(bitn)
+	}
+	cmd.UniqueProgramId = bitn.AsInt(16)
+	cmd.AvailNum = bitn.AsInt(8)
+	cmd.AvailExpected = bitn.AsInt(8)
 }
 
 // SpliceNull is a no op command.
@@ -131,7 +132,7 @@ func (cmd *SpCmd) SpliceNull() {
 }
 
 // TimeSignal is a wrapper for Splicetime
-func (cmd *SpCmd) TimeSignal(bitn gobit.Bitn) {
+func (cmd *SpCmd) TimeSignal(bitn *gobit.Bitn) {
 	cmd.Name = "Time Signal"
 	cmd.SpliceTime(bitn)
 }
