@@ -1,6 +1,6 @@
 package three5
 
-import "fmt"
+
 import "github.com/futzu/gobit"
 
 // SpInfo is the splice info section of the SCTE 35 cue.
@@ -51,7 +51,6 @@ type SpCmd struct {
 	DurationFlag               bool
 	SpliceImmediateFlag        bool
 	ComponentCount             uint64
-	SpliceImmediateFlag        bool
 	UniqueProgramId            uint64
 	AvailNum                   uint64
 	AvailExpected              uint64
@@ -92,37 +91,37 @@ func (cmd *SpCmd) SpliceTime(bitn gobit.Bitn) {
 }
 func (cmd *SpCmd) SpliceInsert(bitn gobit.Bitn) {
 	cmd.Name = "Splice Insert"
-	cmd.SpliceEventId = bitbin.AsInt(32)
-	cmd.SpliceEventCancelIndicator = bitbin.AsBool()
-	bitbin.Forward(7)
+	cmd.SpliceEventId = bitn.AsInt(32)
+	cmd.SpliceEventCancelIndicator = bitn.AsBool()
+	bitn.Forward(7)
 	if cmd.SpliceEventCancelIndicator == false {
-		cmd.OutOfNetworkIndicator = bitbin.AsBool()
-		cmd.ProgramSpliceFlag = bitbin.AsBool()
-		cmd.DurationFlag = bitbin.AsBool()
-		cmd.SpliceImmediateFlag = bitbin.AsBool()
-		bitbin.Forward(4)
+		cmd.OutOfNetworkIndicator = bitn.AsBool()
+		cmd.ProgramSpliceFlag = bitn.AsBool()
+		cmd.DurationFlag = bitn.AsBool()
+		cmd.SpliceImmediateFlag = bitn.AsBool()
+		bitn.Forward(4)
 		if cmd.ProgramSpliceFlag == true {
 			if cmd.SpliceImmediateFlag == false {
-				cmd.SpliceTime(bitbin)
+				cmd.SpliceTime(bitn)
 			}
 		}
 		if cmd.ProgramSpliceFlag == false {
-			cmd.ComponentCount = bitbin.AsInt(8)
+			cmd.ComponentCount = bitn.AsInt(8)
 			/**
 			                cmd.Components = []
 			                for i in range(0, cmd.ComponentCount):
 			                    cmd.Components[i] = bitbin.AsInt(8)
 						**/
 			if cmd.SpliceImmediateFlag == false {
-				cmd.SpliceTime(bitbin)
+				cmd.SpliceTime(bitn)
 			}
 		}
 		if cmd.DurationFlag == true {
-			cmd.ParseBreak(bitbin)
+			cmd.ParseBreak(bitn)
 		}
-		cmd.UniqueProgramId = bitbin.AsInt(16)
-		cmd.AvailNum = bitbin.AsInt(8)
-		cmd.AvailExpected = bitbin.AsInt(8)
+		cmd.UniqueProgramId = bitn.AsInt(16)
+		cmd.AvailNum = bitn.AsInt(8)
+		cmd.AvailExpected = bitn.AsInt(8)
 	}
 }
 
