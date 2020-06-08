@@ -10,7 +10,8 @@ The SCTE 35 Parser in Go.
  * Splice Commands 
     * Splice Null     ✓
     * Time Signal     ✓
-    
+
+#### Here's how I'm running it.
 ```go
 package main
 
