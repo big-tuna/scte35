@@ -64,7 +64,7 @@ func (cmd *SpCmd) Decode(bitn gobit.Bitn, cmdtype uint64) {
 	}
 	//4: Splice_Schedule,
 	if cmdtype == 5{
-		cmd.Splice_Insert(bitn)
+		cmd.SpliceInsert(bitn)
 	}
 	if cmdtype == 6 {
 		cmd.TimeSignal(bitn)
