@@ -11,7 +11,7 @@ The SCTE 35 Parser in Go.
     * Splice Null     ✓
     * Time Signal     ✓
     
-```
+```go
 package main
 
 import "github.com/futzu/three5"
