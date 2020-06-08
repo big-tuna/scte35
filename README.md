@@ -13,20 +13,20 @@ The SCTE 35 Parser in Go.
 ```go
 package main
 
+import "github.com/futzu/three5"
 import "fmt"
 import "github.com/futzu/gobit"
-import "github.com/futzu/three5"
-
 
 func main() {
-	bites := []byte("\xfc0H\x00\x00\x00\x00\x00\x00\xff\xff\xf0\x05\x06\xfe\x93.8\x0b\x002\x02\x17CUEIH\x00\x00\n\x7f\x9f\x08\x08\x00\x00\x00\x00,\xa0\xa1\xe3\x18\x00\x00\x02\x17CUEIH\x00\x00\t\x7f\x9f\x08\x08\x00\x00\x00\x00,\xa0\xa1\x8a\x11\x00\x00\xb4!~\xb0")
+	bites := []byte("\xfc0/\x00\x00\x00\x00\x00\x00\xff\xff\xf0\x14\x05H\x00\x00\x8f\x7f\xef\xfesi\xc0.\xfe\x00R\xcc\xf5\x00\x00\x00\x00\x00\n\x00\x08CUEI\x00\x00\x015b\xdb\xa3")
 	var bitn gobit.Bitn
 	bitn.Load(bites)
 	var spi three5.SpInfo
-	spi.Decode(bitn)
+	spi.Decode(&bitn)
 	var cmd three5.SpCmd
-	cmd.Decode(bitn,spi.SpliceCommandType)
-	fmt.Println(spi)
-	fmt.Println(cmd)
+	cmd.Decode(&bitn,spi.SpliceCommandType)
+	fmt.Printf("%+v",spi)
+	fmt.Printf("%+v",cmd)
 	}
+	
 ```  
