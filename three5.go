@@ -61,7 +61,7 @@ type SpCmd struct {
 	DurationFlag               bool
 	SpliceImmediateFlag        bool
 	ComponentCount             uint64
-	Components				   []uint64
+	Components		 []uint64
 	UniqueProgramId            uint64
 	AvailNum                   uint64
 	AvailExpected              uint64
