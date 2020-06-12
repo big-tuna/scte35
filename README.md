@@ -3,12 +3,12 @@ The SCTE 35 Parser in Go.
 ## Heads up, this is not yet functional. 
 
 #### What is working:
-
- * Splice Info Section ✓
+* Base64 encoded strings ✓
+ * Splice Info Section 	 ✓
  * Splice Commands 
-    * Splice Null     ✓
-    * Time Signal     ✓
-    * Splice Insert   ✓
+    * Splice Null     	 ✓
+    * Time Signal     	 ✓
+    * Splice Insert   	 ✓
     
 #### Here's how I'm running it.
 ```go
