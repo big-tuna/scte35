@@ -1,6 +1,6 @@
 # three5
 The SCTE 35 Parser in Go.
-## Heads up, this is not yet functional. 
+### Heads up, work in progress.
 
 #### What is working:
 * Base64 encoded strings ✓
