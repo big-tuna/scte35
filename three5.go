@@ -61,6 +61,7 @@ type SpCmd struct {
 	DurationFlag               bool
 	SpliceImmediateFlag        bool
 	ComponentCount             uint64
+	Components				   []uint64
 	UniqueProgramId            uint64
 	AvailNum                   uint64
 	AvailExpected              uint64
@@ -121,11 +122,12 @@ func (cmd *SpCmd) SpliceInsert(bitn *gobit.Bitn) {
 	}
 	if cmd.ProgramSpliceFlag == false {
 		cmd.ComponentCount = bitn.AsInt(8)
-		/**
-		  cmd.Components = []
-		  for i in range(0, cmd.ComponentCount):
-		  cmd.Components[i] = bitbin.AsInt(8)
-		**/
+		
+		  var Components [100] uint64
+		  for i,_ := range Components{
+		  Components[i] = bitn.AsInt(8)
+		}
+		cmd.Components = Components[0:cmd.ComponentCount]
 		if cmd.SpliceImmediateFlag == false {
 			cmd.SpliceTime(bitn)
 		}
