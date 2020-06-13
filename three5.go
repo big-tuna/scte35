@@ -1,8 +1,14 @@
 package three5
 
+import "fmt"
+import "io"
+import "log"
+import "os"
 import "encoding/base64"
 import "github.com/futzu/gobit"
-import "log"
+
+const PktSz = 188
+const BufferSize = 384 * PktSz
 
 // DeB64 decodes base64 strings
 func DeB64(b64 string) []byte {
@@ -11,6 +17,64 @@ func DeB64(b64 string) []byte {
 		log.Fatal(err)
 	}
 	return deb64
+}
+
+// Find is a test for array inclusion
+func Find(slice []uint8, val uint8) (int, bool) {
+	for i, item := range slice {
+		if item == val {
+			return i, true
+		}
+	}
+	return -1, false
+}
+
+// PktParser is a parser for an mpegts SCTE 35 packet
+func PktParser(pkt []byte) {
+	if pkt[5] == 0xfc {
+		if pkt[6]>>4 == 3 {
+			if pkt[8] == 0 {
+				cmds := []uint8{0, 5, 6, 7, 255}
+				_, found := Find(cmds, pkt[18])
+				if found {
+					var bitn gobit.Bitn
+					bitn.Load(pkt[4:PktSz])
+					var spi SpInfo
+					spi.Decode(&bitn)
+					var cmd SpCmd
+					cmd.Decode(&bitn, spi.SpliceCommandType)
+					fmt.Printf("%+v\n", spi)
+					fmt.Printf("%+v\n", cmd)
+				}
+			}
+		}
+	}
+}
+
+// FileParser is a parser for an mpegts file
+func FileParser(fname string) {
+	file, err := os.Open(fname)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer file.Close()
+	buffer := make([]byte, BufferSize)
+	for {
+		bytesread, err := file.Read(buffer)
+		if err != nil {
+			if err != io.EOF {
+				fmt.Println(err)
+			}
+			break
+		}
+		for i := 1; i <= (bytesread / PktSz); i++ {
+			end := i * PktSz
+			start := end - PktSz
+			pkt := buffer[start:end]
+			PktParser(pkt)
+		}
+	}
 }
 
 // SpInfo is the splice info section of the SCTE 35 cue.
