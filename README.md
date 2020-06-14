@@ -33,7 +33,7 @@ func main() {
 	}
 ```  
 ---
-
+* output
 ```sh
 {Name:Splice Info Section TableId:0xfc SectionSyntaxIndicator:false Private:false 
 Reserved:0x3 SectionLength:42 ProtocolVersion:0 EncryptedPacket:false 
@@ -48,7 +48,7 @@ UniqueProgramId:1 AvailNum:12 AvailExpected:255 Identifier:0}
 
 ```
 
- * Parsing an mpegts file 
+ * Parsing an MPEG-TS file 
 ```go
 package main
 
