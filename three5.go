@@ -21,14 +21,14 @@ func DeB64(b64 string) []byte {
 	return deb64
 }
 
-// Find is a test for array membership I stole off the Internet.
-func Find(slice []uint8, val uint8) (int, bool) {
-	for i, item := range slice {
+// Find is a test for slice membership
+func Find(slice []uint8, val uint8) bool {
+	for _, item := range slice {
 		if item == val {
-			return i, true
+			return  true
 		}
 	}
-	return -1, false
+	return false
 }
 
 // SCTE35Parser parses a slice of bytes for SCTE 35 data.
@@ -49,8 +49,7 @@ func PktParser(pkt []byte) {
 		if pkt[6]>>4 == 3 {
 			if pkt[8] == 0 {
 				cmds := []uint8{0, 5, 6, 7, 255}
-				_, found := Find(cmds, pkt[18])
-				if found {
+				if Find(cmds, pkt[18]){
 					SCTE35Parser(pkt[4:PktSz])
 				}
 			}
