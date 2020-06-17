@@ -43,18 +43,20 @@ func SCTE35Parser(bites []byte) {
 	spi.Decode(&bitn)
 	var cmd SpCmd
 	cmd.Decode(&bitn, spi.SpliceCommandType)
+	spi.DescriptorLoopLength = bitn.AsUInt64(16)
 	fmt.Printf("%+v\n", spi)
 	fmt.Printf("%+v\n", cmd)
 }
 
 // PktParser is a parser for an MPEG-TS SCTE 35 packet
 func PktParser(pkt []byte) {
+	pld := pkt[5:PktSz]
 	magicbytes := [4]uint8{252, 48, 0, 255}
-	pktbytes := [4]uint8{pkt[5], pkt[6], pkt[8], pkt[15]}
-	if pktbytes == magicbytes {
-		cmds := []uint8{0, 5, 6, 7, 255}
-		if IsIn(cmds, pkt[18]) {
-			SCTE35Parser(pkt[4:PktSz])
+	cmds := []uint8{0, 5, 6, 7, 255}
+	pldbytes := [4]uint8{pld[0], pld[1], pld[3], pld[10]}
+	if pldbytes == magicbytes {
+		if IsIn(cmds, pld[13]) {
+			SCTE35Parser(pld)
 		}
 	}
 }
@@ -95,6 +97,7 @@ type SpInfo struct {
 	Tier                   string
 	SpliceCommandLength    uint64
 	SpliceCommandType      uint64
+	DescriptorLoopLength   uint64
 }
 
 // Decode extracts bits for the splice info section values.
