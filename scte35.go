@@ -11,7 +11,7 @@ const PktSz = 188
 // BufferSize is the size of a read when parsing files.
 const BufferSize = 384 * PktSz
 
-// Generic catchall error checking
+// Chk is generic catchall error checking.
 func Chk(e error) {
 	if e != nil {
 		panic(e)
