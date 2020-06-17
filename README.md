@@ -31,7 +31,7 @@ go get -u github.com/futzu/scte35
 	
     go build test.go
 	
-    ./test video1 video2 video3
+  ./test video1 video2 video3
 **/ 	
 package main
 
