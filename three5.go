@@ -1,8 +1,6 @@
 package three5
 
 import "fmt"
-import "io"
-import "log"
 import "os"
 import "encoding/base64"
 import "github.com/futzu/bitter"
@@ -13,12 +11,17 @@ const PktSz = 188
 // BufferSize is the size of a read when parsing files.
 const BufferSize = 384 * PktSz
 
+// Generic catchall error checking
+func Chk(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
 // DeB64 decodes base64 strings.
 func DeB64(b64 string) []byte {
 	deb64, err := base64.StdEncoding.DecodeString(b64)
-	if err != nil {
-		log.Fatal(err)
-	}
+	Chk(err)
 	return deb64
 }
 
@@ -59,18 +62,12 @@ func PktParser(pkt []byte) {
 // FileParser is a parser for an MPEG-TS file.
 func FileParser(fname string) {
 	file, err := os.Open(fname)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	Chk(err)
 	defer file.Close()
 	buffer := make([]byte, BufferSize)
 	for {
 		bytesread, err := file.Read(buffer)
 		if err != nil {
-			if err != io.EOF {
-				fmt.Println(err)
-			}
 			break
 		}
 		for i := 1; i <= (bytesread / PktSz); i++ {
@@ -194,8 +191,7 @@ func (cmd *SpCmd) SpliceInsert(bitn *bitter.Bitn) {
 		if !(cmd.SpliceImmediateFlag) {
 			cmd.SpliceTime(bitn)
 		}
-	}
-	if !(cmd.ProgramSpliceFlag) {
+	} else {
 		cmd.ComponentCount = bitn.AsUInt64(8)
 		var Components [256]uint64
 		cmd.Components = Components[0:cmd.ComponentCount]
