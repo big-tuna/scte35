@@ -90,15 +90,15 @@ type SpInfo struct {
 	SectionSyntaxIndicator bool
 	Private                bool
 	Reserved               string
-	SectionLength          uint16
-	ProtocolVersion        uint8
+	SectionLength          uint64
+	ProtocolVersion        uint64
 	EncryptedPacket        bool
-	EncryptionAlgorithm    uint8
+	EncryptionAlgorithm    uint64
 	PtsAdjustment          float64
 	CwIndex                string
 	Tier                   string
-	SpliceCommandLength    uint16
-	SpliceCommandType      uint8
+	SpliceCommandLength    uint64
+	SpliceCommandType      uint64
 }
 
 // Decode extracts bits for the splice info section values.
@@ -108,15 +108,15 @@ func (spi *SpInfo) Decode(bitn *bitter.Bitn) {
 	spi.SectionSyntaxIndicator = bitn.AsBool()
 	spi.Private = bitn.AsBool()
 	spi.Reserved = bitn.AsHex(2)
-	spi.SectionLength = bitn.AsUInt16(12)
-	spi.ProtocolVersion = bitn.AsUInt8(8)
+	spi.SectionLength = bitn.AsUInt64(12)
+	spi.ProtocolVersion = bitn.AsUInt64(8)
 	spi.EncryptedPacket = bitn.AsBool()
-	spi.EncryptionAlgorithm = bitn.AsUInt8(6)
+	spi.EncryptionAlgorithm = bitn.AsUInt64(6)
 	spi.PtsAdjustment = bitn.As90k(33)
 	spi.CwIndex = bitn.AsHex(8)
 	spi.Tier = bitn.AsHex(12)
-	spi.SpliceCommandLength = bitn.AsUInt16(12)
-	spi.SpliceCommandType = bitn.AsUInt8(8)
+	spi.SpliceCommandLength = bitn.AsUInt64(12)
+	spi.SpliceCommandType = bitn.AsUInt64(8)
 }
 
 // SpCmd is the splice command for the SCTE35 cue.
@@ -132,16 +132,16 @@ type SpCmd struct {
 	SpliceImmediateFlag        bool
 	TimeSpecifiedFlag          bool
 	PTS                        float64
-	ComponentCount             uint8
-	Components                 []uint8
-	UniqueProgramId            uint16
-	AvailNum                   uint8
-	AvailExpected              uint8
-	Identifier                 uint32
+	ComponentCount             uint64
+	Components                 []uint64
+	UniqueProgramId            uint64
+	AvailNum                   uint64
+	AvailExpected              uint64
+	Identifier                 uint64
 }
 
 // Decode the splice command values.
-func (cmd *SpCmd) Decode(bitn *bitter.Bitn, cmdtype uint8) {
+func (cmd *SpCmd) Decode(bitn *bitter.Bitn, cmdtype uint64) {
 	if cmdtype == 0 {
 		cmd.SpliceNull()
 	}
@@ -197,11 +197,11 @@ func (cmd *SpCmd) SpliceInsert(bitn *bitter.Bitn) {
 		}
 	}
 	if !(cmd.ProgramSpliceFlag) {
-		cmd.ComponentCount = bitn.AsUInt8(8)
-		var Components [256]uint8
+		cmd.ComponentCount = bitn.AsUInt64(8)
+		var Components [256]uint64
 		cmd.Components = Components[0:cmd.ComponentCount]
 		for i := range cmd.Components {
-			cmd.Components[i] = bitn.AsUInt8(8)
+			cmd.Components[i] = bitn.AsUInt64(8)
 		}
 		if !(cmd.SpliceImmediateFlag) {
 			cmd.SpliceTime(bitn)
@@ -210,9 +210,9 @@ func (cmd *SpCmd) SpliceInsert(bitn *bitter.Bitn) {
 	if cmd.DurationFlag {
 		cmd.ParseBreak(bitn)
 	}
-	cmd.UniqueProgramId = bitn.AsUInt16(16)
-	cmd.AvailNum = bitn.AsUInt8(8)
-	cmd.AvailExpected = bitn.AsUInt8(8)
+	cmd.UniqueProgramId = bitn.AsUInt64(16)
+	cmd.AvailNum = bitn.AsUInt64(8)
+	cmd.AvailExpected = bitn.AsUInt64(8)
 }
 
 // SpliceNull is a No-Op command.
@@ -234,5 +234,5 @@ func (cmd *SpCmd) BandwidthReservation(bitn *bitter.Bitn) {
 // PrivateCommand splice command.
 func (cmd *SpCmd) PrivateCommand(bitn *bitter.Bitn) {
 	cmd.Name = "Private Command"
-	cmd.Identifier = bitn.AsUInt32(32)
+	cmd.Identifier = bitn.AsUInt64(32)
 }
