@@ -1,4 +1,4 @@
-# scte35
+# scte35			[![Go Report Card](https://goreportcard.com/badge/github.com/FUTZU/scte35)](https://goreportcard.com/report/github.com/FUTZU/scte35)
 The SCTE 35 Parser in Go.
 ### Heads up, work in progress.
 
