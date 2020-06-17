@@ -1,4 +1,4 @@
-package three5
+package scte35
 
 import "fmt"
 import "os"
