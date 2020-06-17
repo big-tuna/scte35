@@ -54,16 +54,14 @@ func main() {
 ---
 ##### Output
 ```sh
-{Name:Splice Info Section TableId:0xfc SectionSyntaxIndicator:false Private:false 
-Reserved:0x3 SectionLength:42 ProtocolVersion:0 EncryptedPacket:false 
-EncryptionAlgorithm:0 PtsAdjustment:0 CwIndex:0xff Tier:0xfff 
-SpliceCommandLength:15 SpliceCommandType:5}
-
-{Name:Splice Insert SpliceEventId:0x400004f7 SpliceEventCancelIndicator:false 
-OutOfNetworkIndicator:false ProgramSpliceFlag:true DurationFlag:false 
-BreakAutoReturn:false BreakDuration:0 SpliceImmediateFlag:false 
-TimeSpecifiedFlag:true PTS:23696.827655555557 ComponentCount:0 Components:[] 
-UniqueProgramId:1 AvailNum:12 AvailExpected:255 Identifier:0}
+{Name:Splice Info Section TableId:0xfc SectionSyntaxIndicator:false
+Private:false Reserved:0x3 SectionLength:47 ProtocolVersion:0
+EncryptedPacket:false EncryptionAlgorithm:0 PtsAdjustment:0 CwIndex:0xff 
+Tier:0xfff SpliceCommandLength:20 SpliceCommandType:5}
+{Name:Splice Insert SpliceEventId:0x4800008f SpliceEventCancelIndicator:false 
+OutOfNetworkIndicator:true ProgramSpliceFlag:true DurationFlag:true BreakAutoReturn:true 
+BreakDuration:60.293566 SpliceImmediateFlag:false TimeSpecifiedFlag:true PTS:21514.559088 
+ComponentCount:0 Components:[] UniqueProgramId:0 AvailNum:0 AvailExpected:0 Identifier:0}
 
 ```
 
