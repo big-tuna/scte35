@@ -29,9 +29,9 @@ go get -u github.com/futzu/scte35
 ```go
 /** call this file test.go
 	
-	go build test.go
+    go build test.go
 	
-	./test video1 video2 video3
+    ./test video1 video2 video3
 **/ 	
 package main
 
