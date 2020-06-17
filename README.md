@@ -24,70 +24,60 @@ The SCTE 35 Parser in Go.
 go get -u github.com/futzu/scte35
 ```
 
-#### Parsing localpackage main
-
-import (
-	"os"
-	"fmt"
-	"github.com/futzu/scte35"
-
-)
-
-func main(){
-	args := os.Args[1:]
-	for i := range args{
-		fmt.Printf( "\nNext File: %s\n\n",args[i] )
-		scte35.FileParser(args[i])
-	}
-}    package main
-
-import (
-	"os"
-	"fmt"
-	"github.com/futzu/scte35"
-
-)
-
-func main(){
-	args := os.Args[1:]
-	for i := range args{
-		fmt.Printf( "\nNext File: %s\n\n",args[i] )
-		scte35.FileParser(args[i])
-	}
-}     MPEG-TS file(s)
+#### Parsing local MPEG-TS files
 
 ```go
+/** call this file test.go
+	
+	go build test.go
+	
+	./test video1 video2 video3
+**/ 	
 package main
 
 import (
 	"os"
 	"fmt"
 	"github.com/futzu/scte35"
-
 )
 
 func main(){
-	// pass filename(s) in on command line
+
 	args := os.Args[1:]
 	for i := range args{
 		fmt.Printf( "\nNext File: %s\n\n",args[i] )
 		scte35.FileParser(args[i])
 	}
-}    
+}     
 ```
-
 
 #### Parsing a base64 string
 ```go
+/** call this file test1.go
+
+    go build test1.go 
+    
+   ./test1 "/DAvAAAAAAAA///wFAVIAACPf+/+c2nALv4AUsz1AAAAAAAKAAhDVUVJAAABNWLbowo="
+**/
+
 package main
 
-import "github.com/futzu/scte35"
+import (
+	"os"
+	"fmt"
+	"github.com/futzu/scte35"
+)
 
 func main() {
-	b64 := "/DAvAAAAAAAA///wFAVIAACPf+/+c2nALv4AUsz1AAAAAAAKAAhDVUVJAAABNWLbowo="
-	bites := scte35.DeB64(b64)
-	scte35.SCTE35Parser(bites)
+
+
+	args := os.Args[1:]
+	for i := range args{
+		bites := scte35.DeB64(args[i])
+		fmt.Println(args[i])
+		scte35.SCTE35Parser(bites)
 	}
+}
 ```  
 ---
 ##### Output
