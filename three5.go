@@ -45,17 +45,15 @@ func SCTE35Parser(bites []byte) {
 
 // PktParser is a parser for an MPEG-TS SCTE 35 packet
 func PktParser(pkt []byte) {
-	if pkt[5] == 0xfc {
-		if pkt[6]>>4 == 3 {
-			if pkt[8] == 0 {
-				cmds := []uint8{0, 5, 6, 7, 255}
-				if IsIn(cmds, pkt[18]){
-					SCTE35Parser(pkt[4:PktSz])
+	magicbytes := [4]uint8{252, 48, 0, 255}
+	pktbytes := [4]uint8{pkt[5],pkt[6],pkt[8],pkt[15]}
+	if pktbytes == magicbytes{
+					cmds := []uint8{0, 5, 6, 7, 255}
+					if IsIn(cmds, pkt[18]){
+						SCTE35Parser(pkt[4:PktSz])
+					}
 				}
-			}
-		}
 	}
-}
 
 // FileParser is a parser for an MPEG-TS file.
 func FileParser(fname string) {
