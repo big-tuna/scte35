@@ -1,4 +1,4 @@
-# three5
+# scte35
 The SCTE 35 Parser in Go.
 ### Heads up, work in progress.
 
@@ -21,7 +21,7 @@ The SCTE 35 Parser in Go.
 
 #### Installation
 ```sh
-go get -u github.com/futzu/three5
+go get -u github.com/futzu/scte35
 ```
 
 #### Parsing an MPEG-TS file 
@@ -29,12 +29,12 @@ go get -u github.com/futzu/three5
 package main
 
 import (
-	"github.com/futzu/three5"
+	"github.com/futzu/scte35"
 )
 
 func main(){
     fname := "video.ts" 
-    three5.FileParser(fname)
+    scte35.FileParser(fname)
 }   
 ```
 
@@ -43,12 +43,12 @@ func main(){
 ```go
 package main
 
-import "github.com/futzu/three5"
+import "github.com/futzu/scte35"
 
 func main() {
 	b64 := "/DAvAAAAAAAA///wFAVIAACPf+/+c2nALv4AUsz1AAAAAAAKAAhDVUVJAAABNWLbowo="
-	bites := three5.DeB64(b64)
-	three5.SCTE35Parser(bites)
+	bites := scte35.DeB64(b64)
+	scte35.SCTE35Parser(bites)
 	}
 ```  
 ---
