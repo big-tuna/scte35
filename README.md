@@ -24,7 +24,37 @@ The SCTE 35 Parser in Go.
 go get -u github.com/futzu/scte35
 ```
 
-#### Parsing an MPEG-TS file(s)
+#### Parsing localpackage main
+
+import (
+	"os"
+	"fmt"
+	"github.com/futzu/scte35"
+
+)
+
+func main(){
+	args := os.Args[1:]
+	for i := range args{
+		fmt.Printf( "\nNext File: %s\n\n",args[i] )
+		scte35.FileParser(args[i])
+	}
+}    package main
+
+import (
+	"os"
+	"fmt"
+	"github.com/futzu/scte35"
+
+)
+
+func main(){
+	args := os.Args[1:]
+	for i := range args{
+		fmt.Printf( "\nNext File: %s\n\n",args[i] )
+		scte35.FileParser(args[i])
+	}
+}     MPEG-TS file(s)
 
 ```go
 package main
