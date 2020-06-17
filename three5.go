@@ -7,9 +7,10 @@ import "os"
 import "encoding/base64"
 import "github.com/futzu/bitter"
 
-// PktSz is the size of an MPEG-TS packet in bytes. 
+// PktSz is the size of an MPEG-TS packet in bytes.
 const PktSz = 188
-// BufferSize is the size of a read when parsing files. 
+
+// BufferSize is the size of a read when parsing files.
 const BufferSize = 384 * PktSz
 
 // DeB64 decodes base64 strings.
@@ -25,7 +26,7 @@ func DeB64(b64 string) []byte {
 func IsIn(slice []uint8, val uint8) bool {
 	for _, item := range slice {
 		if item == val {
-			return  true
+			return true
 		}
 	}
 	return false
@@ -46,14 +47,14 @@ func SCTE35Parser(bites []byte) {
 // PktParser is a parser for an MPEG-TS SCTE 35 packet
 func PktParser(pkt []byte) {
 	magicbytes := [4]uint8{252, 48, 0, 255}
-	pktbytes := [4]uint8{pkt[5],pkt[6],pkt[8],pkt[15]}
-	if pktbytes == magicbytes{
-					cmds := []uint8{0, 5, 6, 7, 255}
-					if IsIn(cmds, pkt[18]){
-						SCTE35Parser(pkt[4:PktSz])
-					}
-				}
+	pktbytes := [4]uint8{pkt[5], pkt[6], pkt[8], pkt[15]}
+	if pktbytes == magicbytes {
+		cmds := []uint8{0, 5, 6, 7, 255}
+		if IsIn(cmds, pkt[18]) {
+			SCTE35Parser(pkt[4:PktSz])
+		}
 	}
+}
 
 // FileParser is a parser for an MPEG-TS file.
 func FileParser(fname string) {
