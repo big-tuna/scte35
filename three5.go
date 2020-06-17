@@ -5,7 +5,7 @@ import "io"
 import "log"
 import "os"
 import "encoding/base64"
-import "github.com/futzu/gobit"
+import "github.com/futzu/bitter"
 
 // PktSz is the size of an MPEG-TS packet in bytes. 
 const PktSz = 188
@@ -21,8 +21,8 @@ func DeB64(b64 string) []byte {
 	return deb64
 }
 
-// Find is a test for slice membership
-func Find(slice []uint8, val uint8) bool {
+// IsIn is a test for slice membership
+func IsIn(slice []uint8, val uint8) bool {
 	for _, item := range slice {
 		if item == val {
 			return  true
@@ -33,7 +33,7 @@ func Find(slice []uint8, val uint8) bool {
 
 // SCTE35Parser parses a slice of bytes for SCTE 35 data.
 func SCTE35Parser(bites []byte) {
-	var bitn gobit.Bitn
+	var bitn bitter.Bitn
 	bitn.Load(bites)
 	var spi SpInfo
 	spi.Decode(&bitn)
@@ -49,7 +49,7 @@ func PktParser(pkt []byte) {
 		if pkt[6]>>4 == 3 {
 			if pkt[8] == 0 {
 				cmds := []uint8{0, 5, 6, 7, 255}
-				if Find(cmds, pkt[18]){
+				if IsIn(cmds, pkt[18]){
 					SCTE35Parser(pkt[4:PktSz])
 				}
 			}
@@ -102,7 +102,7 @@ type SpInfo struct {
 }
 
 // Decode extracts bits for the splice info section values.
-func (spi *SpInfo) Decode(bitn *gobit.Bitn) {
+func (spi *SpInfo) Decode(bitn *bitter.Bitn) {
 	spi.Name = "Splice Info Section"
 	spi.TableId = bitn.AsHex(8)
 	spi.SectionSyntaxIndicator = bitn.AsBool()
@@ -141,7 +141,7 @@ type SpCmd struct {
 }
 
 // Decode the splice command values.
-func (cmd *SpCmd) Decode(bitn *gobit.Bitn, cmdtype uint8) {
+func (cmd *SpCmd) Decode(bitn *bitter.Bitn, cmdtype uint8) {
 	if cmdtype == 0 {
 		cmd.SpliceNull()
 	}
@@ -161,14 +161,14 @@ func (cmd *SpCmd) Decode(bitn *gobit.Bitn, cmdtype uint8) {
 }
 
 // ParseBreak parses out the ad break duration values.
-func (cmd *SpCmd) ParseBreak(bitn *gobit.Bitn) {
+func (cmd *SpCmd) ParseBreak(bitn *bitter.Bitn) {
 	cmd.BreakAutoReturn = bitn.AsBool()
 	bitn.Forward(6)
 	cmd.BreakDuration = bitn.As90k(33)
 }
 
 // SpliceTime parses out the PTS value as needed.
-func (cmd *SpCmd) SpliceTime(bitn *gobit.Bitn) {
+func (cmd *SpCmd) SpliceTime(bitn *bitter.Bitn) {
 	cmd.TimeSpecifiedFlag = bitn.AsBool()
 	if cmd.TimeSpecifiedFlag {
 		bitn.Forward(6)
@@ -179,7 +179,7 @@ func (cmd *SpCmd) SpliceTime(bitn *gobit.Bitn) {
 }
 
 // SpliceInsert handles SCTE 35 splice insert commands.
-func (cmd *SpCmd) SpliceInsert(bitn *gobit.Bitn) {
+func (cmd *SpCmd) SpliceInsert(bitn *bitter.Bitn) {
 	cmd.Name = "Splice Insert"
 	cmd.SpliceEventId = bitn.AsHex(32)
 	cmd.SpliceEventCancelIndicator = bitn.AsBool()
@@ -221,18 +221,18 @@ func (cmd *SpCmd) SpliceNull() {
 }
 
 // TimeSignal splice command is a wrapper for SpliceTime.
-func (cmd *SpCmd) TimeSignal(bitn *gobit.Bitn) {
+func (cmd *SpCmd) TimeSignal(bitn *bitter.Bitn) {
 	cmd.Name = "Time Signal"
 	cmd.SpliceTime(bitn)
 }
 
 // BandwidthReservation splice command.
-func (cmd *SpCmd) BandwidthReservation(bitn *gobit.Bitn) {
+func (cmd *SpCmd) BandwidthReservation(bitn *bitter.Bitn) {
 	cmd.Name = "Bandwidth Reservation"
 }
 
 // PrivateCommand splice command.
-func (cmd *SpCmd) PrivateCommand(bitn *gobit.Bitn) {
+func (cmd *SpCmd) PrivateCommand(bitn *bitter.Bitn) {
 	cmd.Name = "Private Command"
 	cmd.Identifier = bitn.AsUInt32(32)
 }
