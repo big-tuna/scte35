@@ -50,12 +50,17 @@ func SCTE35Parser(bites []byte) {
 
 // PktParser is a parser for an MPEG-TS SCTE 35 packet
 func PktParser(pkt []byte) {
+	// pkt is the mpegts packet, pld is the packet payload
 	pld := pkt[5:PktSz]
 	magicbytes := [4]uint8{252, 48, 0, 255}
-	cmds := []uint8{0, 5, 6, 7, 255}
+	// cmds is an array of valid SCTE 35 command codes
+	cmds := [4]uint8{0, 5, 6, 7, 255}
+	// compare the pld bytes 0,1,3,and 10 to the magicbytes 
 	pldbytes := [4]uint8{pld[0], pld[1], pld[3], pld[10]}
 	if pldbytes == magicbytes {
+		// if pld byte 13 is a valid scte 35 command code
 		if IsIn(cmds, pld[13]) {
+			// then this is a scte 35 packet, parse it
 			SCTE35Parser(pld)
 		}
 	}
