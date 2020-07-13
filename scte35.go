@@ -54,7 +54,7 @@ func PktParser(pkt []byte) {
 	pld := pkt[5:PktSz]
 	magicbytes := [4]uint8{252, 48, 0, 255}
 	// cmds is an array of valid SCTE 35 command codes
-	cmds := [4]uint8{0, 5, 6, 7, 255}
+	cmds := []uint8{0, 5, 6, 7, 255}
 	// compare the pld bytes 0,1,3,and 10 to the magicbytes 
 	pldbytes := [4]uint8{pld[0], pld[1], pld[3], pld[10]}
 	if pldbytes == magicbytes {
