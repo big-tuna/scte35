@@ -77,21 +77,58 @@ func FileParser(fname string) {
 }
 
 type Cue struct {
-	infoSection SpInfo
-	command     SpCmd
-	descriptors []SpDscptr
+	InfoSection SpInfo
+	Command     SpCmd
+	Descriptors []SpDscptr
 }
 
 // Decode extracts bits for the Cue values.
 func (cue *Cue) Decode(bites []byte) {
 	var bitn bitter.Bitn
 	bitn.Load(bites)
-	cue.infoSection.Decode(&bitn)
-	cue.command.Decode(&bitn, cue.infoSection.SpliceCommandType)
-	cue.infoSection.DescriptorLoopLength = bitn.AsUInt64(16)
-	fmt.Printf("%+v\n", cue.infoSection)
-	fmt.Printf("%+v\n", cue.command)
+	cue.InfoSection.Decode(&bitn)
+	cue.Command.Decode(&bitn, cue.InfoSection.SpliceCommandType)
+	cue.InfoSection.DescriptorLoopLength = bitn.AsUInt64(16)
+	cue.DscptrLoop(&bitn)
+	fmt.Printf("%+v\n", cue.InfoSection)
+	fmt.Printf("%+v\n", cue.Command)
+	fmt.Printf("%+v\n", cue.Descriptor[0])
 }
+
+  
+func (cue *Cue) DscptrLoop(bitn *bitter.Bitn) {
+		var i uint64
+		i = 0
+        for i < cue.InfoSection.DescriptorLoopLength {
+        	var sd SpDscptr
+        	sd.DescriptorType = bitn.AsUInt64(8)
+      		sd.DescriptorLen = bitn.AsUInt64(8)  	
+        	//sd.Decode(bitn *bitter.Bitn)
+            i += sd.DescriptorLen +2
+            cue.Descriptors = append(cue.Descriptors,sd)
+	}            
+}
+/**
+  SetSpDscptr(self):
+        '''
+
+        threefive.Cue.set_splice_descriptor
+        is called by threefive.Cue.descriptorloop.
+        '''
+        # splice_descriptor_tag 8 uimsbf
+        tag = self.bitbin.asint(8)
+        desc_len = self.bitbin.asint(8)
+        if tag in self.sd_tags:
+            if tag == 2:
+                sd = SegmentationDescriptor()
+            else:
+                sd = SpliceDescriptor()
+            sd.parse(self.bitbin,tag)
+            sd.descriptor_length = desc_len
+            return sd
+        else:
+            return False
+**/
 
 // SpInfo is the splice info section of the SCTE 35 cue.
 type SpInfo struct {
@@ -257,6 +294,8 @@ type AudioCmpnt struct {
 
 // Splice Descriptor
 type SpDscptr struct {
+	DescriptorType		uint64
+	DescriptorLen		uint64
 	// identiﬁer 32 uimsbf == 0x43554549 (ASCII “CUEI”)
 	Identifier      string
 	Name            string
