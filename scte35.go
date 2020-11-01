@@ -103,19 +103,19 @@ func (cue *Cue) Decode(bites []byte) {
 	fmt.Println(MkJson(&cue))
 }
 
-  
 func (cue *Cue) DscptrLoop(bitn *bitter.Bitn) {
-		var i uint64
-		i = 0
-        for i < cue.InfoSection.DescriptorLoopLength {
-        	var sd SpDscptr
-        	sd.DescriptorType = bitn.AsUInt64(8)
-      		sd.DescriptorLen = bitn.AsUInt64(8)  	
-        	//sd.Decode(bitn *bitter.Bitn)
-            i += sd.DescriptorLen +2
-            cue.Descriptors = append(cue.Descriptors,sd)
-	}            
+	var i uint64
+	i = 0
+	for i < cue.InfoSection.DescriptorLoopLength {
+		var sd SpDscptr
+		sd.DescriptorType = bitn.AsUInt64(8)
+		sd.DescriptorLen = bitn.AsUInt64(8)
+		//sd.Decode(bitn *bitter.Bitn)
+		i += sd.DescriptorLen + 2
+		cue.Descriptors = append(cue.Descriptors, sd)
+	}
 }
+
 /**
   SetSpDscptr(self):
         '''
@@ -178,22 +178,22 @@ func (spi *SpInfo) Decode(bitn *bitter.Bitn) {
 // SpCmd is the splice command for the SCTE35 cue.
 type SpCmd struct {
 	Name                       string
-	SpliceEventId              string `json:"omitempty"`
-	SpliceEventCancelIndicator bool	`json:"omitempty"`
-	OutOfNetworkIndicator      bool `json:"omitempty"`
-	ProgramSpliceFlag          bool `json:"omitempty"`
-	DurationFlag               bool  `json:"omitempty"`
-	BreakAutoReturn            bool	 `json:"omitempty"`
-	BreakDuration              float64 `json:"omitempty"`
-	SpliceImmediateFlag        bool `json:"omitempty"`
-	TimeSpecifiedFlag          bool `json:"omitempty"`
-	PTS                        float64 `json:"omitempty"`
-	ComponentCount             uint64 `json:"omitempty"`
+	SpliceEventId              string   `json:"omitempty"`
+	SpliceEventCancelIndicator bool     `json:"omitempty"`
+	OutOfNetworkIndicator      bool     `json:"omitempty"`
+	ProgramSpliceFlag          bool     `json:"omitempty"`
+	DurationFlag               bool     `json:"omitempty"`
+	BreakAutoReturn            bool     `json:"omitempty"`
+	BreakDuration              float64  `json:"omitempty"`
+	SpliceImmediateFlag        bool     `json:"omitempty"`
+	TimeSpecifiedFlag          bool     `json:"omitempty"`
+	PTS                        float64  `json:"omitempty"`
+	ComponentCount             uint64   `json:"omitempty"`
 	Components                 []uint64 `json:"omitempty"`
-	UniqueProgramId            uint64 `json:"omitempty"`
-	AvailNum                   uint64 `json:"omitempty"`
-	AvailExpected              uint64 `json:"omitempty"`
-	Identifier                 uint64 `json:"omitempty"`
+	UniqueProgramId            uint64   `json:"omitempty"`
+	AvailNum                   uint64   `json:"omitempty"`
+	AvailExpected              uint64   `json:"omitempty"`
+	Identifier                 uint64   `json:"omitempty"`
 }
 
 // Decode the splice command values.
@@ -297,13 +297,13 @@ type AudioCmpnt struct {
 	ISO_code        uint64 `json:"omitempty"`
 	bit_stream_mode uint64 `json:"omitempty"`
 	num_channels    uint64 `json:"omitempty"`
-	full_srvc_audio bool `json:"omitempty"`
+	full_srvc_audio bool   `json:"omitempty"`
 }
 
 // Splice Descriptor
 type SpDscptr struct {
-	DescriptorType		uint64
-	DescriptorLen		uint64
+	DescriptorType uint64
+	DescriptorLen  uint64
 	// identiﬁer 32 uimsbf == 0x43554549 (ASCII “CUEI”)
 	Identifier      string
 	Name            string
