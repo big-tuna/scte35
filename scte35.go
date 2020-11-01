@@ -10,7 +10,7 @@ import "github.com/futzu/bitter"
 const PktSz = 188
 
 // BufferSize is the size of a read when parsing files.
-const BufferSize = 384 * PktSz
+const BufferSize = 24 * PktSz
 
 // Generic catchall error checking
 func Chk(e error) {
@@ -85,7 +85,7 @@ func FileParser(fname string) {
 		}
 	}
 }
-
+// Cue a SCTE35 cue. 
 type Cue struct {
 	InfoSection SpInfo
 	Command     SpCmd
@@ -103,6 +103,7 @@ func (cue *Cue) Decode(bites []byte) {
 	fmt.Println(MkJson(&cue))
 }
 
+// DscptrLoop loops over any splice descriptors
 func (cue *Cue) DscptrLoop(bitn *bitter.Bitn) {
 	var i uint64
 	i = 0
@@ -134,7 +135,7 @@ type SpInfo struct {
 	DescriptorLoopLength   uint64
 }
 
-// Decode extracts bits for the splice info section values.
+// Decode splice info section values.
 func (spi *SpInfo) Decode(bitn *bitter.Bitn) {
 	spi.Name = "Splice Info Section"
 	spi.TableId = bitn.AsHex(8)
@@ -277,7 +278,7 @@ type AudioCmpnt struct {
 	full_srvc_audio bool   `json:"omitempty"`
 }
 
-// Splice Descriptor
+// Splice descriptor
 type SpDscptr struct {
 	DescriptorType uint64
 	DescriptorLen  uint64
@@ -293,12 +294,14 @@ type SpDscptr struct {
 	UTCOffset  uint64 `json:",omitempty"`
 }
 
+// MetaData for splice descriptors
 func (dscptr *SpDscptr) MetaData(bitn *bitter.Bitn) {
 	dscptr.DescriptorType = bitn.AsUInt64(8)
 	dscptr.DescriptorLen = bitn.AsUInt64(8)
 	dscptr.Identifier = bitn.AsHex(32)
 }
 
+// Decode splice descriptor values
 func (dscptr *SpDscptr) Decode(bitn *bitter.Bitn) {
 	ddt := dscptr.DescriptorType
 	if ddt == 0 {
@@ -314,18 +317,6 @@ func (dscptr *SpDscptr) Decode(bitn *bitter.Bitn) {
 
 }
 
-/**
-    def parse(self,bitbin,tag):
-        sd_map = { 0: self.avail_descriptor,
-           1: self.dtmf_descriptor,
-          # 2: SegmentationDescriptor see three5.segmentation
-           3: self.time_descriptor,
-           4: self.audio_descriptor }
-        self.tag = tag
-        self.chk_identifier(bitbin)
-        sd_map[tag](bitbin)
-
-**/
 // AvailDscptr Avail Splice Descriptor
 func (dscptr *SpDscptr) AvailDscptr(bitn *bitter.Bitn) {
 	dscptr.Name = "Avail Descriptor"
