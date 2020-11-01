@@ -77,10 +77,11 @@ func FileParser(fname string) {
 }
 
 type Cue struct {
-	infoSection		SpInfo
-	command			SpCmd
-	descriptors		[]SpDscptr
+	infoSection SpInfo
+	command     SpCmd
+	descriptors []SpDscptr
 }
+
 // Decode extracts bits for the Cue values.
 func (cue *Cue) Decode(bites []byte) {
 	var bitn bitter.Bitn
@@ -91,7 +92,6 @@ func (cue *Cue) Decode(bites []byte) {
 	fmt.Printf("%+v\n", cue.infoSection)
 	fmt.Printf("%+v\n", cue.command)
 }
-
 
 // SpInfo is the splice info section of the SCTE 35 cue.
 type SpInfo struct {
