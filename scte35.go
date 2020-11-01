@@ -35,19 +35,6 @@ func IsIn(slice []uint8, val uint8) bool {
 	return false
 }
 
-// SCTE35Parser parses a slice of bytes for SCTE 35 data.
-func SCTE35Parser(bites []byte) {
-	var bitn bitter.Bitn
-	bitn.Load(bites)
-	var spi SpInfo
-	spi.Decode(&bitn)
-	var cmd SpCmd
-	cmd.Decode(&bitn, spi.SpliceCommandType)
-	spi.DescriptorLoopLength = bitn.AsUInt64(16)
-	fmt.Printf("%+v\n", spi)
-	fmt.Printf("%+v\n", cmd)
-}
-
 // PktParser is a parser for an MPEG-TS SCTE 35 packet
 func PktParser(pkt []byte) {
 	var hdr bitter.Bitn
@@ -61,7 +48,8 @@ func PktParser(pkt []byte) {
 	if pldbytes == magicbytes {
 		cmds := []uint8{0, 5, 6, 7, 255}
 		if IsIn(cmds, pld[13]) {
-			SCTE35Parser(pld)
+			var cue Cue
+			cue.Decode(pld)
 			fmt.Println(PID)
 
 		}
@@ -87,6 +75,23 @@ func FileParser(fname string) {
 		}
 	}
 }
+
+type Cue struct {
+	infoSection		SpInfo
+	command			SpCmd
+	descriptors		[]SpDscptr
+}
+// Decode extracts bits for the Cue values.
+func (cue *Cue) Decode(bites []byte) {
+	var bitn bitter.Bitn
+	bitn.Load(bites)
+	cue.infoSection.Decode(&bitn)
+	cue.command.Decode(&bitn, cue.infoSection.SpliceCommandType)
+	cue.infoSection.DescriptorLoopLength = bitn.AsUInt64(16)
+	fmt.Printf("%+v\n", cue.infoSection)
+	fmt.Printf("%+v\n", cue.command)
+}
+
 
 // SpInfo is the splice info section of the SCTE 35 cue.
 type SpInfo struct {
@@ -247,7 +252,7 @@ type AudioCmpnt struct {
 	ISO_code        uint64
 	bit_stream_mode uint64
 	num_channels    uint64
-	full_srvc_audio boolean
+	full_srvc_audio bool
 }
 
 // Splice Descriptor
@@ -274,7 +279,7 @@ func (dscptr *SpDscptr) AvailDscptr(bitn *bitter.Bitn) {
 func (dscptr *SpDscptr) DTMFDscptr(bitn *bitter.Bitn) {
 	dscptr.Name = "DTMF Descriptor"
 	dscptr.PreRoll = bitn.AsUInt64(8)
-	dscptr.dtmfCount = bitn.AsUInt64(3)
+	dscptr.DTMFCount = bitn.AsUInt64(3)
 	bitn.Forward(5)
 	/**
 	        dscptr.DTMFChars = []
@@ -286,7 +291,7 @@ func (dscptr *SpDscptr) DTMFDscptr(bitn *bitter.Bitn) {
 // TimeDscptr Time Splice DSescriptor
 func (dscptr *SpDscptr) TimeDscptr(bitn *bitter.Bitn) {
 	dscptr.Name = "Time Descriptor"
-	dscptr.TAISseconds = bitn.AsUInt64(48)
+	dscptr.TAISeconds = bitn.AsUInt64(48)
 	dscptr.TAINano = bitn.AsUInt64(32)
 	dscptr.UTCOffset = bitn.AsUInt64(16)
 }
