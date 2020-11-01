@@ -3,6 +3,7 @@ package scte35
 import "fmt"
 import "os"
 import "encoding/base64"
+import "encoding/json"
 import "github.com/futzu/bitter"
 
 // PktSz is the size of an MPEG-TS packet in bytes.
@@ -14,8 +15,17 @@ const BufferSize = 384 * PktSz
 // Generic catchall error checking
 func Chk(e error) {
 	if e != nil {
-		panic(e)
+		fmt.Println(e)
 	}
+}
+
+// MkJson structs to JSON
+func MkJson(i interface{}) string {
+	jason, err := json.MarshalIndent(&i, "", "    ")
+	if err != nil {
+		fmt.Println(err)
+	}
+	return string(jason)
 }
 
 // DeB64 decodes base64 strings.
@@ -41,7 +51,7 @@ func PktParser(pkt []byte) {
 	hdr.Load(pkt[0:5])
 	hdr.Forward(8)
 	hdr.Forward(3)
-	PID := hdr.AsHex(12)
+	PID := hdr.AsUInt64(12)
 	pld := pkt[5:PktSz]
 	magicbytes := [4]uint8{252, 48, 0, 255}
 	pldbytes := [4]uint8{pld[0], pld[1], pld[3], pld[10]}
@@ -79,7 +89,7 @@ func FileParser(fname string) {
 type Cue struct {
 	InfoSection SpInfo
 	Command     SpCmd
-	Descriptors []SpDscptr
+	Descriptors []SpDscptr `json:",omitempty"`
 }
 
 // Decode extracts bits for the Cue values.
@@ -90,9 +100,7 @@ func (cue *Cue) Decode(bites []byte) {
 	cue.Command.Decode(&bitn, cue.InfoSection.SpliceCommandType)
 	cue.InfoSection.DescriptorLoopLength = bitn.AsUInt64(16)
 	cue.DscptrLoop(&bitn)
-	fmt.Printf("%+v\n", cue.InfoSection)
-	fmt.Printf("%+v\n", cue.Command)
-	fmt.Printf("%+v\n", cue.Descriptor[0])
+	fmt.Println(MkJson(&cue))
 }
 
   
@@ -170,22 +178,22 @@ func (spi *SpInfo) Decode(bitn *bitter.Bitn) {
 // SpCmd is the splice command for the SCTE35 cue.
 type SpCmd struct {
 	Name                       string
-	SpliceEventId              string
-	SpliceEventCancelIndicator bool
-	OutOfNetworkIndicator      bool
-	ProgramSpliceFlag          bool
-	DurationFlag               bool
-	BreakAutoReturn            bool
-	BreakDuration              float64
-	SpliceImmediateFlag        bool
-	TimeSpecifiedFlag          bool
-	PTS                        float64
-	ComponentCount             uint64
-	Components                 []uint64
-	UniqueProgramId            uint64
-	AvailNum                   uint64
-	AvailExpected              uint64
-	Identifier                 uint64
+	SpliceEventId              string `json:"omitempty"`
+	SpliceEventCancelIndicator bool	`json:"omitempty"`
+	OutOfNetworkIndicator      bool `json:"omitempty"`
+	ProgramSpliceFlag          bool `json:"omitempty"`
+	DurationFlag               bool  `json:"omitempty"`
+	BreakAutoReturn            bool	 `json:"omitempty"`
+	BreakDuration              float64 `json:"omitempty"`
+	SpliceImmediateFlag        bool `json:"omitempty"`
+	TimeSpecifiedFlag          bool `json:"omitempty"`
+	PTS                        float64 `json:"omitempty"`
+	ComponentCount             uint64 `json:"omitempty"`
+	Components                 []uint64 `json:"omitempty"`
+	UniqueProgramId            uint64 `json:"omitempty"`
+	AvailNum                   uint64 `json:"omitempty"`
+	AvailExpected              uint64 `json:"omitempty"`
+	Identifier                 uint64 `json:"omitempty"`
 }
 
 // Decode the splice command values.
@@ -285,11 +293,11 @@ func (cmd *SpCmd) PrivateCommand(bitn *bitter.Bitn) {
 }
 
 type AudioCmpnt struct {
-	component_tag   string
-	ISO_code        uint64
-	bit_stream_mode uint64
-	num_channels    uint64
-	full_srvc_audio bool
+	component_tag   string `json:"omitempty"`
+	ISO_code        uint64 `json:"omitempty"`
+	bit_stream_mode uint64 `json:"omitempty"`
+	num_channels    uint64 `json:"omitempty"`
+	full_srvc_audio bool `json:"omitempty"`
 }
 
 // Splice Descriptor
@@ -299,13 +307,13 @@ type SpDscptr struct {
 	// identiﬁer 32 uimsbf == 0x43554549 (ASCII “CUEI”)
 	Identifier      string
 	Name            string
-	ProviderAvailId uint64
-	PreRoll         uint64
-	DTMFCount       uint64
-	//dtmf_chars = []
-	TAISeconds uint64
-	TAINano    uint64
-	UTCOffset  uint64
+	ProviderAvailId uint64 `json:"omitempty"`
+	PreRoll         uint64 `json:"omitempty"`
+	DTMFCount       uint64 `json:"omitempty"`
+	//dtmf_chars = [] `json:"omitempty"`
+	TAISeconds uint64 `json:"omitempty"`
+	TAINano    uint64 `json:"omitempty"`
+	UTCOffset  uint64 `json:"omitempty"`
 }
 
 // AvailDscptr Avail Splice Descriptor
