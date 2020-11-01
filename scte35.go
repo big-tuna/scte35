@@ -108,35 +108,12 @@ func (cue *Cue) DscptrLoop(bitn *bitter.Bitn) {
 	i = 0
 	for i < cue.InfoSection.DescriptorLoopLength {
 		var sd SpDscptr
-		sd.DescriptorType = bitn.AsUInt64(8)
-		sd.DescriptorLen = bitn.AsUInt64(8)
-		//sd.Decode(bitn *bitter.Bitn)
+		sd.MetaData(bitn)
+		sd.Decode(bitn)
 		i += sd.DescriptorLen + 2
 		cue.Descriptors = append(cue.Descriptors, sd)
 	}
 }
-
-/**
-  SetSpDscptr(self):
-        '''
-
-        threefive.Cue.set_splice_descriptor
-        is called by threefive.Cue.descriptorloop.
-        '''
-        # splice_descriptor_tag 8 uimsbf
-        tag = self.bitbin.asint(8)
-        desc_len = self.bitbin.asint(8)
-        if tag in self.sd_tags:
-            if tag == 2:
-                sd = SegmentationDescriptor()
-            else:
-                sd = SpliceDescriptor()
-            sd.parse(self.bitbin,tag)
-            sd.descriptor_length = desc_len
-            return sd
-        else:
-            return False
-**/
 
 // SpInfo is the splice info section of the SCTE 35 cue.
 type SpInfo struct {
@@ -178,22 +155,22 @@ func (spi *SpInfo) Decode(bitn *bitter.Bitn) {
 // SpCmd is the splice command for the SCTE35 cue.
 type SpCmd struct {
 	Name                       string
-	SpliceEventId              string   `json:"omitempty"`
-	SpliceEventCancelIndicator bool     `json:"omitempty"`
-	OutOfNetworkIndicator      bool     `json:"omitempty"`
-	ProgramSpliceFlag          bool     `json:"omitempty"`
-	DurationFlag               bool     `json:"omitempty"`
-	BreakAutoReturn            bool     `json:"omitempty"`
-	BreakDuration              float64  `json:"omitempty"`
-	SpliceImmediateFlag        bool     `json:"omitempty"`
-	TimeSpecifiedFlag          bool     `json:"omitempty"`
-	PTS                        float64  `json:"omitempty"`
-	ComponentCount             uint64   `json:"omitempty"`
-	Components                 []uint64 `json:"omitempty"`
-	UniqueProgramId            uint64   `json:"omitempty"`
-	AvailNum                   uint64   `json:"omitempty"`
-	AvailExpected              uint64   `json:"omitempty"`
-	Identifier                 uint64   `json:"omitempty"`
+	SpliceEventId              string   `json:",omitempty"`
+	SpliceEventCancelIndicator bool     `json:",omitempty"`
+	OutOfNetworkIndicator      bool     `json:",omitempty"`
+	ProgramSpliceFlag          bool     `json:",omitempty"`
+	DurationFlag               bool     `json:",omitempty"`
+	BreakAutoReturn            bool     `json:",omitempty"`
+	BreakDuration              float64  `json:",omitempty"`
+	SpliceImmediateFlag        bool     `json:",omitempty"`
+	TimeSpecifiedFlag          bool     `json:",omitempty"`
+	PTS                        float64  `json:",omitempty"`
+	ComponentCount             uint64   `json:",omitempty"`
+	Components                 []uint64 `json:",omitempty"`
+	UniqueProgramId            uint64   `json:",omitempty"`
+	AvailNum                   uint64   `json:",omitempty"`
+	AvailExpected              uint64   `json:",omitempty"`
+	Identifier                 uint64   `json:",omitempty"`
 }
 
 // Decode the splice command values.
@@ -307,15 +284,48 @@ type SpDscptr struct {
 	// identiﬁer 32 uimsbf == 0x43554549 (ASCII “CUEI”)
 	Identifier      string
 	Name            string
-	ProviderAvailId uint64 `json:"omitempty"`
-	PreRoll         uint64 `json:"omitempty"`
-	DTMFCount       uint64 `json:"omitempty"`
-	//dtmf_chars = [] `json:"omitempty"`
-	TAISeconds uint64 `json:"omitempty"`
-	TAINano    uint64 `json:"omitempty"`
-	UTCOffset  uint64 `json:"omitempty"`
+	ProviderAvailId uint64 `json:",omitempty"`
+	PreRoll         uint64 `json:",omitempty"`
+	DTMFCount       uint64 `json:",omitempty"`
+	//dtmf_chars = [] `json:",omitempty"`
+	TAISeconds uint64 `json:",omitempty"`
+	TAINano    uint64 `json:",omitempty"`
+	UTCOffset  uint64 `json:",omitempty"`
 }
 
+func (dscptr *SpDscptr) MetaData(bitn *bitter.Bitn) {
+	dscptr.DescriptorType = bitn.AsUInt64(8)
+	dscptr.DescriptorLen = bitn.AsUInt64(8)
+	dscptr.Identifier = bitn.AsHex(32)
+}
+
+func (dscptr *SpDscptr) Decode(bitn *bitter.Bitn) {
+	ddt := dscptr.DescriptorType
+	if ddt == 0 {
+		dscptr.AvailDscptr(bitn)
+	}
+	if ddt == 1 {
+		dscptr.DTMFDscptr(bitn)
+	}
+
+	if ddt == 3 {
+		dscptr.TimeDscptr(bitn)
+	}
+
+}
+
+/**
+    def parse(self,bitbin,tag):
+        sd_map = { 0: self.avail_descriptor,
+           1: self.dtmf_descriptor,
+          # 2: SegmentationDescriptor see three5.segmentation
+           3: self.time_descriptor,
+           4: self.audio_descriptor }
+        self.tag = tag
+        self.chk_identifier(bitbin)
+        sd_map[tag](bitbin)
+
+**/
 // AvailDscptr Avail Splice Descriptor
 func (dscptr *SpDscptr) AvailDscptr(bitn *bitter.Bitn) {
 	dscptr.Name = "Avail Descriptor"
