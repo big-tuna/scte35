@@ -11,7 +11,7 @@ const PktSz = 188
 // BufferSize is the size of a read when parsing files.
 const BufferSize = 384 * PktSz
 
-// Chk is generic catchall error checking.
+// Generic catchall error checking
 func Chk(e error) {
 	if e != nil {
 		panic(e)
@@ -50,18 +50,20 @@ func SCTE35Parser(bites []byte) {
 
 // PktParser is a parser for an MPEG-TS SCTE 35 packet
 func PktParser(pkt []byte) {
-	// pkt is the mpegts packet, pld is the packet payload
+	var hdr bitter.Bitn
+	hdr.Load(pkt[0:5])
+	hdr.Forward(8)
+	hdr.Forward(3)
+	PID := hdr.AsHex(12)
 	pld := pkt[5:PktSz]
 	magicbytes := [4]uint8{252, 48, 0, 255}
-	// cmds is an array of valid SCTE 35 command codes
-	cmds := []uint8{0, 5, 6, 7, 255}
-	// compare the pld bytes 0,1,3,and 10 to the magicbytes 
 	pldbytes := [4]uint8{pld[0], pld[1], pld[3], pld[10]}
 	if pldbytes == magicbytes {
-		// if pld byte 13 is a valid scte 35 command code
+		cmds := []uint8{0, 5, 6, 7, 255}
 		if IsIn(cmds, pld[13]) {
-			// then this is a scte 35 packet, parse it
 			SCTE35Parser(pld)
+			fmt.Println(PID)
+
 		}
 	}
 }
@@ -238,4 +240,53 @@ func (cmd *SpCmd) BandwidthReservation(bitn *bitter.Bitn) {
 func (cmd *SpCmd) PrivateCommand(bitn *bitter.Bitn) {
 	cmd.Name = "Private Command"
 	cmd.Identifier = bitn.AsUInt64(32)
+}
+
+type AudioCmpnt struct {
+	component_tag   string
+	ISO_code        uint64
+	bit_stream_mode uint64
+	num_channels    uint64
+	full_srvc_audio boolean
+}
+
+// Splice Descriptor
+type SpDscptr struct {
+	// identiﬁer 32 uimsbf == 0x43554549 (ASCII “CUEI”)
+	Identifier      string
+	Name            string
+	ProviderAvailId uint64
+	PreRoll         uint64
+	DTMFCount       uint64
+	//dtmf_chars = []
+	TAISeconds uint64
+	TAINano    uint64
+	UTCOffset  uint64
+}
+
+// AvailDscptr Avail Splice Descriptor
+func (dscptr *SpDscptr) AvailDscptr(bitn *bitter.Bitn) {
+	dscptr.Name = "Avail Descriptor"
+	dscptr.ProviderAvailId = bitn.AsUInt64(32)
+}
+
+// DTMFDscptr DTMF Splice DSescriptor
+func (dscptr *SpDscptr) DTMFDscptr(bitn *bitter.Bitn) {
+	dscptr.Name = "DTMF Descriptor"
+	dscptr.PreRoll = bitn.AsUInt64(8)
+	dscptr.dtmfCount = bitn.AsUInt64(3)
+	bitn.Forward(5)
+	/**
+	        dscptr.DTMFChars = []
+	        for i in range(0, dscptr.DTMFCount):
+	            dscptr.DTMFChars.append(bitbin.asint(8))
+			**/
+}
+
+// TimeDscptr Time Splice DSescriptor
+func (dscptr *SpDscptr) TimeDscptr(bitn *bitter.Bitn) {
+	dscptr.Name = "Time Descriptor"
+	dscptr.TAISseconds = bitn.AsUInt64(48)
+	dscptr.TAINano = bitn.AsUInt64(32)
+	dscptr.UTCOffset = bitn.AsUInt64(16)
 }
